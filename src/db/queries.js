@@ -6,8 +6,22 @@ const addUser = database.prepare(`
     RETURNING username, fullname, email
     `);
 
+const getUserByUsername = database.prepare(`
+    SELECT * FROM users WHERE username = ?
+    `)
+
+const addPost = database.prepare(`
+    INSERT INTO posts (content, createdAt)
+    VALUES (?, ?)
+    RETURNING postId, createdAt, userId
+    `);
+
 const getAllUsers = database.prepare(`
     SELECT * FROM users
     `)
 
-export {addUser, getAllUsers};
+const getAllPosts = database.prepare(`
+    SELECT * FROM posts
+    `)
+
+export {addUser, getUserByUsername, getAllUsers, getAllPosts, addPost};

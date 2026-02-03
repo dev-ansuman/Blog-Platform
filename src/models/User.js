@@ -11,5 +11,17 @@ CREATE TABLE IF NOT EXISTS users (
 );
 `;
 
+const postTable = `
+CREATE TABLE IF NOT EXISTS posts (
+    postId INTEGER PRIMARY KEY AUTOINCREMENT,
+    content TEXT NOT NULL,
+    createdAt TEXT NOT NULL,
+    userId INTEGER,
+    FOREIGN KEY (userId) REFERENCES users(userId) 
+);
+`;
+
 database.exec(userTable);
+database.exec(postTable);
+
 export default database;
