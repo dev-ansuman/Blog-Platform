@@ -1,10 +1,16 @@
 import express from 'express';
 const authRouter = express.Router();
-import { registerUser, loginUser } from '../controllers/auth-controller.js';
+import { registerUser, loginUser, renewAccesToken } from '../controllers/authentication.js';
+import { authMiddleware } from '../middleware/authentication.js'
 
 
 authRouter.post('/register', registerUser);
 authRouter.post('/login', loginUser);
+authRouter.post('/refresh-token', authMiddleware, renewAccesToken);
+
+// authRouter.post('/logout', authMiddleware, logoutUser);
+
+// authRouter.post('/refresh-token', getRefreshToken);
 
 // authRouter.post('/post', async (req, res) => {
 //     const {content} = req.body;
