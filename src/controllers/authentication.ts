@@ -1,8 +1,9 @@
 import { addUser, getUserByUsername } from '../db/queries.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import type { Request, Response } from 'express';
 
-const registerUser = async (req, res) => {
+const registerUser = async (req: Request, res: Response) => {
   try {
     const { username, fullname, email, password } = req.body;
 
@@ -36,7 +37,7 @@ const registerUser = async (req, res) => {
   }
 };
 
-const loginUser = async (req, res) => {
+const loginUser = async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body;
 
@@ -54,7 +55,7 @@ const loginUser = async (req, res) => {
       });
     }
 
-    const isPasswordValid = bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(password as string, user.password as string);
 
     if (!isPasswordValid) {
       return res.status(400).json({
@@ -68,7 +69,7 @@ const loginUser = async (req, res) => {
         username: user.username,
         userId: user.userId,
       },
-      process.env.ACCESS_TOKEN_SECRET,
+      process.env.ACCESS_TOKEN_SECRET!,
       {
         expiresIn: '10m',
       }
@@ -78,13 +79,18 @@ const loginUser = async (req, res) => {
       {
         userId: user.userId,
       },
-      process.env.REFRESH_TOKEN_SECRET,
+      process.env.REFRESH_TOKEN_SECRET!,
       {
         expiresIn: '7d',
       }
     );
 
-    req.cookie('jwt', refreshToken);
+    res.cookie('jwt', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
     return res.status(200).json({
       success: true,
@@ -100,61 +106,83 @@ const loginUser = async (req, res) => {
   }
 };
 
-const renewAccesToken = async (req, res) => {
+const renewAccesToken = async (req: Request, res: Response) => {
   try {
-    if (req.cookies?.jwt) {
-      const refreshToken = req.cookie.jwt;
+    const cookieHeader = req.headers.cookie;
+    let refreshToken: string | undefined;
 
-      jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
-        if (err) {
-          return res.status(406).json({
-            success: false,
-            message: 'Unauthorized',
-          });
-        } else {
-          const accessToken = jwt.sign({
-            username: decoded.username,
-            userId: decoded.userId,
-          });
+    if (cookieHeader) {
+      const cookies = cookieHeader.split(';').reduce(
+        (acc, cookie) => {
+          const [key, value] = cookie.trim().split('=');
+          if (key && value) {
+            acc[key] = value;
+          }
+          return acc;
+        },
+        {} as Record<string, string>
+      );
+      refreshToken = cookies.jwt;
+    }
 
-          return res.status(200).json({
-            success: true,
-            message: 'Access Token renewed!',
-            accessToken,
-          });
-        }
-      });
-    } else {
+    if (!refreshToken) {
       return res.status(401).json({
         success: false,
-        message: 'No Refresh Token!',
+        message: 'No refresh token!',
+      });
+    }
+
+    try {
+      const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET!) as jwt.JwtPayload;
+
+      const accessToken = jwt.sign(
+        {
+          username: decoded.username,
+          userId: decoded.userId,
+        },
+        process.env.ACCESS_TOKEN_SECRET!,
+        { expiresIn: '10m' }
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: 'Access token renewed!',
+        accessToken,
+      });
+    } catch (error) {
+      return res.status(406).json({
+        success: false,
+        message: 'Unauthorized - Invalid or Expired access token!',
+        error,
       });
     }
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Internal server error : Access Token renew failed!',
+      message: 'Internal server error - Access Token renew failed!',
       error,
     });
   }
 };
 
-// const logoutUser = async (req, res) => {
-//     try {
-//         if (!req.userInfo) {
-//             return res.status(404).json({
-//                 success: false,
-//                 message: 'Unable to logout, not logged in'
-//             })
-//         }
+const logoutUser = async (req: Request, res: Response) => {
+  try {
+    res.clearCookie('jwt', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+    });
+    return res.status(200).json({
+      success: true,
+      message: 'Logged out sucessfully!',
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error : Logout User',
+      error,
+    });
+  }
+};
 
-//     } catch (error) {
-//         return res.status(500).json({
-//             success: false,
-//             message: 'Internal server error : Logout User',
-//             error
-//         })
-//     }
-// }
-
-export { registerUser, loginUser, renewAccesToken };
+export { registerUser, loginUser, renewAccesToken, logoutUser };

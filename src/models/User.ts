@@ -1,4 +1,4 @@
-import database from "../db/database.js";
+import database from '../db/database.js';
 
 const userTable = `
 CREATE TABLE IF NOT EXISTS users (

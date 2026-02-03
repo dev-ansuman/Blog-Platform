@@ -1,8 +1,9 @@
 import express from 'express';
+import type { Request, Response } from 'express';
 const adminRoutes = express.Router();
 import { getAllUsers, getAllPosts } from '../db/queries.js';
 
-adminRoutes.get('/users', (req, res) => {
+adminRoutes.get('/users', (req: Request, res: Response) => {
   try {
     const users = getAllUsers.all();
     if (users) {
@@ -25,7 +26,7 @@ adminRoutes.get('/users', (req, res) => {
   }
 });
 
-adminRoutes.get('/posts', (req, res) => {
+adminRoutes.get('/posts', (req: Request, res: Response) => {
   try {
     const posts = getAllPosts.all();
     if (posts) {

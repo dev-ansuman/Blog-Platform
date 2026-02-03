@@ -1,4 +1,4 @@
-import database from "../db/database.js";
+import database from '../db/database.js';
 
 const commentTable = `
 CREATE TABLE IF NOT EXISTS comments (

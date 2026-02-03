@@ -1,4 +1,4 @@
-import database from '../models/User.js'
+import database from '../models/User.js';
 
 const addUser = database.prepare(`
     INSERT INTO users (username, fullname, email, password, createdAt)
@@ -8,7 +8,7 @@ const addUser = database.prepare(`
 
 const getUserByUsername = database.prepare(`
     SELECT * FROM users WHERE username = ?
-    `)
+    `);
 
 const addPost = database.prepare(`
     INSERT INTO posts (content, createdAt)
@@ -18,10 +18,10 @@ const addPost = database.prepare(`
 
 const getAllUsers = database.prepare(`
     SELECT * FROM users
-    `)
+    `);
 
 const getAllPosts = database.prepare(`
     SELECT * FROM posts
-    `)
+    `);
 
-export {addUser, getUserByUsername, getAllUsers, getAllPosts, addPost};
+export { addUser, getUserByUsername, getAllUsers, getAllPosts, addPost };
