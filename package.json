@@ -1,0 +1,29 @@
+{
+  "name": "blog-platform",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u0000B\u0000l\u0000o\u0000g\u0000 \u0000P\u0000l\u0000a\u0000t\u0000f\u0000o\u0000r\u0000m\u0000\r\u0000 \u0000",
+  "homepage": "https://github.com/dev-ansuman/Blog-Platform#readme",
+  "bugs": {
+    "url": "https://github.com/dev-ansuman/Blog-Platform/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dev-ansuman/Blog-Platform.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "./src/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node --watch --experimental-sqlite ./src/server.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.0",
+    "typescript": "^5.9.3"
+  }
+}
