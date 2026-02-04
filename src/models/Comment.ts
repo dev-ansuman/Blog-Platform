@@ -4,6 +4,10 @@ const commentTable = `
 CREATE TABLE IF NOT EXISTS comments (
     commentId INTEGER PRIMARY KEY AUTOINCREMENT,
     content TEXT NOT NULL,
+    postId INTEGER NOT NULL,
+    userId INTEGER NOT NULL,
+    FOREIGN KEY (postId) REFERENCES posts(postId),
+    FOREIGN KEY (userId) REFERENCES users(userId),
     createdAt TEXT NOT NULL
 );
 `;

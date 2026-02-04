@@ -13,7 +13,7 @@ const authMiddleware = async (req: Request, res: Response, next: NextFunction) =
       });
     }
 
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY!) as jwt.JwtPayload;
+    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!) as jwt.JwtPayload;
     req.userInfo = decodedToken;
     next();
   } catch (error) {

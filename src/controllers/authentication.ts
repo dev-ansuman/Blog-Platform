@@ -77,6 +77,7 @@ const loginUser = async (req: Request, res: Response) => {
 
     const refreshToken = jwt.sign(
       {
+        username: user.username,
         userId: user.userId,
       },
       process.env.REFRESH_TOKEN_SECRET!,
@@ -106,7 +107,7 @@ const loginUser = async (req: Request, res: Response) => {
   }
 };
 
-const renewAccesToken = async (req: Request, res: Response) => {
+const renewAccessToken = async (req: Request, res: Response) => {
   try {
     const cookieHeader = req.headers.cookie;
     let refreshToken: string | undefined;
@@ -185,4 +186,4 @@ const logoutUser = async (req: Request, res: Response) => {
   }
 };
 
-export { registerUser, loginUser, renewAccesToken, logoutUser };
+export { registerUser, loginUser, renewAccessToken, logoutUser };
