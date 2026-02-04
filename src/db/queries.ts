@@ -5,9 +5,9 @@ import reactionDatabase from '../models/Reaction.js';
 
 // register user
 const addUser = userDatabase.prepare(`
-    INSERT INTO users (username, fullname, email, password, createdAt)
-    VALUES (?, ?, ?, ?, ?)
-    RETURNING username, fullname, email
+    INSERT INTO users (username, fullname, email, password, role, createdAt)
+    VALUES (?, ?, ?, ?, ?, ?)
+    RETURNING username, fullname, email, role
 `);
 
 const getUserByUsername = userDatabase.prepare(`
@@ -79,6 +79,7 @@ const getReactionsByPostId = reactionDatabase.prepare(`
     WHERE postId = ?
 `);
 
+// admin
 const getAllUsers = userDatabase.prepare(`
     SELECT * FROM users
 `);

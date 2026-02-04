@@ -1,0 +1,14 @@
+import database from '../db/database.js';
+
+const userRolesTable = `
+CREATE TABLE IF NOT EXISTS userroles (
+    userId INTEGER NOT NULL,
+    roleId INTEGER PRIMARY KEY,
+    FOREIGN KEY (userId) REFERENCES users(userId),
+    FOREIGN KEY (roleId) REFERENCES roles(roleId),
+);
+`;
+
+database.exec(userRolesTable);
+
+export default database;

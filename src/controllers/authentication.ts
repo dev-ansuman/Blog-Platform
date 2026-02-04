@@ -7,6 +7,12 @@ const registerUser = async (req: Request, res: Response) => {
   try {
     const { username, fullname, email, password } = req.body;
 
+    let role = req.body.role;
+
+    if (!role) {
+      role = 'user';
+    }
+
     if (!username || !email || !password) {
       return res.status(400).json({
         success: false,
@@ -21,7 +27,7 @@ const registerUser = async (req: Request, res: Response) => {
     // get time of creation of user
     const createdAt = new Date().toISOString();
 
-    const newUser = addUser.get(username, fullname, email, hashedPassword, createdAt);
+    const newUser = addUser.get(username, fullname, email, hashedPassword, role, createdAt);
 
     return res.status(201).json({
       success: true,
@@ -68,6 +74,7 @@ const loginUser = async (req: Request, res: Response) => {
       {
         username: user.username,
         userId: user.userId,
+        role: user.role,
       },
       process.env.ACCESS_TOKEN_SECRET!,
       {
@@ -79,6 +86,7 @@ const loginUser = async (req: Request, res: Response) => {
       {
         username: user.username,
         userId: user.userId,
+        role: user.role,
       },
       process.env.REFRESH_TOKEN_SECRET!,
       {
