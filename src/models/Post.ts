@@ -5,10 +5,11 @@ CREATE TABLE IF NOT EXISTS posts (
     postId INTEGER PRIMARY KEY AUTOINCREMENT,
     content TEXT NOT NULL,
     userId INTEGER NOT NULL,
-    FOREIGN KEY (userId) REFERENCES users(userId), 
     createdAt TEXT NOT NULL,
+    FOREIGN KEY (userId) REFERENCES users(userId)
 );
 `;
 
 database.exec(postTable);
+
 export default database;

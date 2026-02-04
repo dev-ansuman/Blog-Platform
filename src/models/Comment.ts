@@ -6,11 +6,12 @@ CREATE TABLE IF NOT EXISTS comments (
     content TEXT NOT NULL,
     postId INTEGER NOT NULL,
     userId INTEGER NOT NULL,
+    createdAt TEXT NOT NULL,
     FOREIGN KEY (postId) REFERENCES posts(postId),
-    FOREIGN KEY (userId) REFERENCES users(userId),
-    createdAt TEXT NOT NULL
+    FOREIGN KEY (userId) REFERENCES users(userId)
 );
 `;
 
 database.exec(commentTable);
+
 export default database;
