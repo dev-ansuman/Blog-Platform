@@ -1,17 +1,15 @@
 import type { Request, Response } from 'express';
 import {
-  deleteUserById,
-  getUserByUserId,
-  getUserByUsername,
-  updateUserDetailsById,
-  updateUserPasswordByUsername,
-} from '../db/queries.js';
-import bcrypt from 'bcryptjs';
+  getUserDetailService,
+  updateUserDetailsService,
+  updateUserPasswordService,
+  deleteUserService,
+} from '../services/userProfile.js';
 
 const getUserDetail = async (req: Request, res: Response) => {
   try {
     const userId = req.userInfo!.userId;
-    const detail = await getUserByUserId.get(userId);
+    const detail = await getUserDetailService(userId);
 
     return res.status(200).json({
       success: true,
@@ -31,22 +29,29 @@ const updateUserDetails = async (req: Request, res: Response) => {
   try {
     const userId = req.userInfo!.userId;
 
+    if (!req.body) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please enter all required fields (BODY)!',
+      });
+    }
+
     const { newUsername, newFullname, newEmail } = req.body;
-    const lastUpdateAt = new Date().toISOString();
 
-    const updatedUser = await updateUserDetailsById.get(
-      newUsername,
-      newFullname,
-      newEmail,
-      lastUpdateAt,
-      userId
-    );
+    if (!newUsername || !newFullname || !newEmail) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please enter all required fields!',
+      });
+    }
 
-    return res.status(200).json({
-      success: true,
-      message: 'User Details updated successfully!',
-      updatedUser,
-    });
+    const updatedUser = await updateUserDetailsService(newUsername, newFullname, newEmail, userId);
+
+    if (updatedUser.success) {
+      return res.status(200).json(updatedUser);
+    } else {
+      return res.status(400).json(updatedUser);
+    }
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -58,36 +63,27 @@ const updateUserDetails = async (req: Request, res: Response) => {
 
 const updateUserPassword = async (req: Request, res: Response) => {
   try {
+    if (!req.body) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please enter all required fields (BODY)!',
+      });
+    }
     const { oldPassword, newPassword } = req.body;
+
     const username = req.userInfo!.username;
 
-    const user = getUserByUsername.get(username);
-    if (!user) {
-      return res.status(404).json({
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({
         success: false,
-        message: 'User not found!',
+        message: 'Please enter all required fields!',
       });
     }
 
-    const isPasswordValid = await bcrypt.compare(oldPassword as string, user.password as string);
+    const updatePassword = await updateUserPasswordService(oldPassword, newPassword, username);
 
-    if (!isPasswordValid) {
-      return res.status(403).json({
-        success: false,
-        message: 'Invalid password!',
-      });
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const newHashedPassword = await bcrypt.hash(newPassword, salt);
-
-    user.password = newHashedPassword;
-    updateUserPasswordByUsername.get(newHashedPassword, username);
-
-    return res.status(200).json({
-      success: true,
-      message: `${username}, password update successfully`,
-    });
+    if (updatePassword.success) return res.status(200).json(updatePassword);
+    else return res.status(400).json(updatePassword);
   } catch (error) {
     return res.status(500).json({
       success: true,
@@ -101,12 +97,10 @@ const deleteUser = async (req: Request, res: Response) => {
   try {
     const userId = req.userInfo!.userId;
     const username = req.userInfo!.username;
-    await deleteUserById.get(userId);
 
-    return res.status(200).json({
-      success: true,
-      message: `User: ${username} deleted successfully!`,
-    });
+    const deletedUser = await deleteUserService(userId, username);
+
+    return res.status(200).json(deletedUser);
   } catch (error) {
     return res.status(500).json({
       success: false,

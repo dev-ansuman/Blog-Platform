@@ -7,8 +7,8 @@ CREATE TABLE IF NOT EXISTS reactions (
     postId INTEGER NOT NULL,
     userId INTEGER NOT NULL,
     createdAt TEXT NOT NULL,
-    FOREIGN KEY (postId) REFERENCES posts(postId),
-    FOREIGN KEY (userId) REFERENCES users(userId)
+    FOREIGN KEY (postId) REFERENCES posts(postId) ON DELETE CASCADE,
+    FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE
 );
 `;
 

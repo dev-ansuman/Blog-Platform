@@ -28,6 +28,12 @@ const updateUserDetailsById = userDatabase.prepare(`
     RETURNING username, fullname, email, lastUpdateAt
 `);
 
+const getUsername = userDatabase.prepare(`
+    SELECT username FROM users WHERE username = ?    
+`);
+const getEmail = userDatabase.prepare(`
+    SELECT email FROM users WHERE email = ?
+`);
 const updateUserPasswordByUsername = userDatabase.prepare(`
     UPDATE users
     SET password = ?
@@ -116,6 +122,8 @@ export {
   getUserByUsername,
   getUserByUserId,
   updateUserDetailsById,
+  getUsername,
+  getEmail,
   updateUserPasswordByUsername,
   deleteUserById,
   addPost,

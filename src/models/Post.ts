@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS posts (
     content TEXT NOT NULL,
     userId INTEGER NOT NULL,
     createdAt TEXT NOT NULL,
-    FOREIGN KEY (userId) REFERENCES users(userId)
+    FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE
 );
 `;
 
