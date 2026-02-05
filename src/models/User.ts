@@ -7,7 +7,6 @@ CREATE TABLE IF NOT EXISTS users (
     fullname TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
-    role TEXT NOT NULL DEFAULT 'user',
     createdAt TEXT NOT NULL,
     lastUpdateAt TEXT
 );

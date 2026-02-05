@@ -2,7 +2,7 @@ import database from '../db/database.js';
 
 const rolesTable = `
 CREATE TABLE IF NOT EXISTS roles (
-    roleId INTEGER PRIMARY KEY,
+    roleId INTEGER PRIMARY KEY AUTOINCREMENT,
     role TEXT NOT NULL UNIQUE
 );
 `;

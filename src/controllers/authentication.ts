@@ -1,4 +1,4 @@
-import { addUser, getUserByUsername } from '../db/queries.js';
+import { addUser, attachRoleToUser, getUserByUsername, getUserRoles } from '../db/queries.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import type { Request, Response } from 'express';
@@ -6,12 +6,6 @@ import type { Request, Response } from 'express';
 const registerUser = async (req: Request, res: Response) => {
   try {
     const { username, fullname, email, password } = req.body;
-
-    let role = req.body.role;
-
-    if (!role) {
-      role = 'user';
-    }
 
     if (!username || !email || !password) {
       return res.status(400).json({
@@ -27,7 +21,10 @@ const registerUser = async (req: Request, res: Response) => {
     // get time of creation of user
     const createdAt = new Date().toISOString();
 
-    const newUser = addUser.get(username, fullname, email, hashedPassword, role, createdAt);
+    const newUser = await addUser.get(username, fullname, email, hashedPassword, createdAt);
+
+    const roleId = 1;
+    await attachRoleToUser.get(Number(newUser!.userId), Number(roleId));
 
     return res.status(201).json({
       success: true,
@@ -70,11 +67,18 @@ const loginUser = async (req: Request, res: Response) => {
       });
     }
 
+    const roles = await getUserRoles.all(Number(user.userId)!);
+    if (!roles) {
+      throw new Error('Unable to get the user roles');
+    }
+
+    const filteredRoles = roles.map((role) => role.role);
+
     const accessToken = jwt.sign(
       {
         username: user.username,
         userId: user.userId,
-        role: user.role,
+        roles: filteredRoles,
       },
       process.env.ACCESS_TOKEN_SECRET!,
       {
@@ -86,7 +90,7 @@ const loginUser = async (req: Request, res: Response) => {
       {
         username: user.username,
         userId: user.userId,
-        role: user.role,
+        roles: filteredRoles,
       },
       process.env.REFRESH_TOKEN_SECRET!,
       {
@@ -148,6 +152,7 @@ const renewAccessToken = async (req: Request, res: Response) => {
         {
           username: decoded.username,
           userId: decoded.userId,
+          roles: decoded.roles,
         },
         process.env.ACCESS_TOKEN_SECRET!,
         { expiresIn: '10m' }

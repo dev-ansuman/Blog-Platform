@@ -2,12 +2,14 @@ import userDatabase from '../models/User.js';
 import postDatabase from '../models/Post.js';
 import commentDatabase from '../models/Comment.js';
 import reactionDatabase from '../models/Reaction.js';
+import rolesDatabase from '../models/Roles.js';
+import userRolesDatabase from '../models/UserRoles.js';
 
 // register user
 const addUser = userDatabase.prepare(`
-    INSERT INTO users (username, fullname, email, password, role, createdAt)
-    VALUES (?, ?, ?, ?, ?, ?)
-    RETURNING username, fullname, email, role
+    INSERT INTO users (username, fullname, email, password, createdAt)
+    VALUES (?, ?, ?, ?, ?)
+    RETURNING userId, username, fullname, email
 `);
 
 const getUserByUsername = userDatabase.prepare(`
@@ -84,9 +86,30 @@ const getAllUsers = userDatabase.prepare(`
     SELECT * FROM users
 `);
 
-// const getAllPosts = database.prepare(`
-//     SELECT * FROM posts
-//     `);
+// role
+const getRoles = rolesDatabase.prepare(`
+    SELECT * FROM roles    
+`);
+
+const addRoleToDB = rolesDatabase.prepare(`
+    INSERT INTO roles (role)
+    VALUES (?)
+    RETURNING role, roleId    
+`);
+
+const attachRoleToUser = userRolesDatabase.prepare(`
+    INSERT INTO userroles (userId, roleId)
+    VALUES (?, ?)
+    RETURNING userId, roleId
+`);
+
+const getUserRoles = userRolesDatabase.prepare(`
+   SELECT roles.role FROM roles INNER JOIN userroles ON userroles.userId = ? and userroles.roleId = roles.roleId
+`);
+
+const dettachUserRole = userRolesDatabase.prepare(`
+    DELETE FROM userroles WHERE userId = ? and roleId = ?
+`);
 
 export {
   addUser,
@@ -103,4 +126,9 @@ export {
   addReactionToPost,
   getReactionsByPostId,
   getAllUsers,
+  getRoles,
+  addRoleToDB,
+  attachRoleToUser,
+  getUserRoles,
+  dettachUserRole,
 };

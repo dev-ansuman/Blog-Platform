@@ -2,10 +2,10 @@ import type { Request, Response, NextFunction } from 'express';
 
 const adminMiddleware = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    if (req.userInfo!.role !== 'admin') {
+    if (!req.userInfo!.roles.includes('admin')) {
       return res.status(401).json({
         success: false,
-        message: 'Admin Permission Required!',
+        message: 'Super Admin Permission Required!',
       });
     }
     next();
