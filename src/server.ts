@@ -17,6 +17,6 @@ app.use('/api', blogRoutes);
 app.use('/users', adminRoutes);
 app.use('/users/:userId/roles', roleRoutes);
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`server is running on port ${PORT}`);
 });
