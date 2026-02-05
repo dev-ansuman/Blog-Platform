@@ -57,6 +57,12 @@ const getUserPosts = async (req: Request, res: Response) => {
 
 const getUserPostById = async (req: Request, res: Response) => {
   try {
+    if (!req.params) {
+      return res.status(400).json({
+        success: false,
+        message: `Please select a post!`,
+      });
+    }
     const postId = Number(req.params.postId);
     const post = await getUserPostByIdService(postId);
 
