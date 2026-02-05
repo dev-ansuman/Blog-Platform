@@ -1,25 +1,35 @@
 import type { Request, Response } from 'express';
 import {
-  addPost,
-  getPostByPostId,
-  getPostsByUserId,
-  addCommentToPost,
-  getCommentsByPostId,
-  addReactionToPost,
-  getReactionsByPostId,
-} from '../db/queries.js';
+  addCommentService,
+  addReactionService,
+  createPostService,
+  getCommentsService,
+  getReactionsService,
+  getUserPostByIdService,
+  getUserPostsService,
+} from '../services/blog.js';
 
 const createPost = async (req: Request, res: Response) => {
   try {
+    if (!req.body) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please enter all required fields (BODY)!',
+      });
+    }
+
     const { content } = req.body;
+    if (!content) {
+      return res.status(400).json({
+        success: false,
+        message: 'Content cannot be empty!',
+      });
+    }
     const userId = req.userInfo!.userId;
-    const createdAt = new Date().toISOString();
-    const newPost = addPost.get(content, userId, createdAt);
-    return res.status(201).json({
-      success: true,
-      message: 'New Post created!',
-      newPost,
-    });
+
+    const newPost = await createPostService(content, userId);
+
+    return res.status(201).json(newPost);
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -31,12 +41,11 @@ const createPost = async (req: Request, res: Response) => {
 
 const getUserPosts = async (req: Request, res: Response) => {
   try {
-    const posts = getPostsByUserId.all(req.userInfo!.userId);
-    return res.status(200).json({
-      success: true,
-      message: `Posts for ${req.userInfo!.username} retrieved successfully!`,
-      posts,
-    });
+    const userId = req.userInfo!.userId;
+    const username = req.userInfo!.username;
+    const userPosts = await getUserPostsService(userId, username);
+
+    return res.status(200).json(userPosts);
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -49,21 +58,10 @@ const getUserPosts = async (req: Request, res: Response) => {
 const getUserPostById = async (req: Request, res: Response) => {
   try {
     const postId = Number(req.params.postId);
-    const post = await getPostByPostId.get(postId);
+    const post = await getUserPostByIdService(postId);
 
-    if (!post) {
-      return res.status(404).json({
-        success: true,
-        message: `post-${postId}, not found`,
-        post,
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: `post-${postId}, retrieved successfully`,
-      post,
-    });
+    if (post.success) return res.status(200).json(post);
+    else return res.status(400).json(post);
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -75,18 +73,27 @@ const getUserPostById = async (req: Request, res: Response) => {
 
 const addComment = async (req: Request, res: Response) => {
   try {
+    if (!req.params) {
+      return res.status(400).json({
+        success: false,
+        message: `Please select a post to comment!`,
+      });
+    }
+
     const postId = Number(req.params.postId);
-    const userId = req.userInfo!.userId;
+    const userId = Number(req.userInfo!.userId);
+
+    if (!req.body) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please enter all required fields (BODY)!',
+      });
+    }
     const { content } = req.body;
-    const createdAt = new Date().toISOString();
 
-    const newComment = addCommentToPost.get(content, postId, userId, createdAt);
+    const newComment = await addCommentService(content, postId, userId);
 
-    return res.status(201).json({
-      success: true,
-      message: 'Comment added successfully',
-      newComment,
-    });
+    return res.status(201).json(newComment);
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -98,9 +105,15 @@ const addComment = async (req: Request, res: Response) => {
 
 const getComments = async (req: Request, res: Response) => {
   try {
+    if (!req.params) {
+      return res.status(400).json({
+        success: false,
+        message: `Please select a post to comment!`,
+      });
+    }
     const postId = Number(req.params.postId);
 
-    const comments = getCommentsByPostId.all(postId);
+    const comments = await getCommentsService(postId);
 
     return res.status(201).json({
       success: true,
@@ -118,18 +131,27 @@ const getComments = async (req: Request, res: Response) => {
 
 const addReaction = async (req: Request, res: Response) => {
   try {
+    if (!req.params) {
+      return res.status(400).json({
+        success: false,
+        message: `Please select a post to comment!`,
+      });
+    }
+
     const postId = Number(req.params.postId);
     const userId = req.userInfo!.userId;
+
+    if (!req.body) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please enter all required fields (BODY)!',
+      });
+    }
     const { content } = req.body;
-    const createdAt = new Date().toISOString();
 
-    const newReaction = addReactionToPost.get(content, postId, userId, createdAt);
+    const newReaction = await addReactionService(content, postId, userId);
 
-    return res.status(201).json({
-      success: true,
-      message: 'Reaction added successfully',
-      newReaction,
-    });
+    return res.status(201).json(newReaction);
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -141,9 +163,15 @@ const addReaction = async (req: Request, res: Response) => {
 
 const getReactions = async (req: Request, res: Response) => {
   try {
+    if (!req.params) {
+      return res.status(400).json({
+        success: false,
+        message: `Please select a post to add reaction!`,
+      });
+    }
     const postId = Number(req.params.postId);
 
-    const reactions = getReactionsByPostId.all(postId);
+    const reactions = await getReactionsService(postId);
 
     return res.status(201).json({
       success: true,
