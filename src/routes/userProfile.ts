@@ -6,7 +6,7 @@ import {
   updateUserDetails,
   updateUserPassword,
   deleteUser,
-} from '../controllers/user-profile.js';
+} from '../controllers/userProfile.js';
 
 userRouter.get('/me', authMiddleware, getUserDetail);
 userRouter.put('/me', authMiddleware, updateUserDetails);

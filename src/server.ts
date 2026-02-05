@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import authRoutes from './routes/authentication.js';
-import userRoutes from './routes/user-profile.js';
+import userRoutes from './routes/userProfile.js';
 import blogRoutes from './routes/blog.js';
 import adminRoutes from './routes/admin.js';
 import roleRoutes from './routes/role.js';

@@ -1,40 +1,24 @@
-import { addUser, attachRoleToUser, getUserByUsername, getUserRoles } from '../db/queries.js';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import type { Request, Response } from 'express';
+import {
+  loginUserService,
+  registerUserService,
+  renewAccessTokenService,
+} from '../services/authentication.js';
 
 const registerUser = async (req: Request, res: Response) => {
   try {
     const { username, fullname, email, password } = req.body;
+    const newUser = await registerUserService(username, fullname, email, password);
 
-    if (!username || !email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: 'Enter all required details!',
-      });
+    if (newUser.success) {
+      return res.status(201).json(newUser);
+    } else {
+      return res.status(400).json(newUser);
     }
-
-    // hash the password before storing in DB
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    // get time of creation of user
-    const createdAt = new Date().toISOString();
-
-    const newUser = await addUser.get(username, fullname, email, hashedPassword, createdAt);
-
-    const roleId = 1;
-    await attachRoleToUser.get(Number(newUser!.userId), Number(roleId));
-
-    return res.status(201).json({
-      success: true,
-      message: 'User created successfully',
-      newUser,
-    });
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Internal Server Error: User Registration',
+      message: 'Internal server error - User Registration',
       error,
     });
   }
@@ -50,66 +34,25 @@ const loginUser = async (req: Request, res: Response) => {
         message: 'Enter all required details!',
       });
     }
-    const user = getUserByUsername.get(username);
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found!',
+
+    const loggedInUser = await loginUserService(username, password);
+    const accessToken = loggedInUser.accessToken;
+    const refreshToken = loggedInUser.refreshToken;
+
+    if (loggedInUser.success) {
+      res.cookie('jwt', refreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
       });
-    }
-
-    const isPasswordValid = await bcrypt.compare(password as string, user.password as string);
-
-    if (!isPasswordValid) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid Password!',
+      return res.status(200).json({
+        success: true,
+        accessToken,
       });
+    } else {
+      return res.status(400).json(loggedInUser);
     }
-
-    const roles = await getUserRoles.all(Number(user.userId)!);
-    if (!roles) {
-      throw new Error('Unable to get the user roles');
-    }
-
-    const filteredRoles = roles.map((role) => role.role);
-
-    const accessToken = jwt.sign(
-      {
-        username: user.username,
-        userId: user.userId,
-        roles: filteredRoles,
-      },
-      process.env.ACCESS_TOKEN_SECRET!,
-      {
-        expiresIn: '10m',
-      }
-    );
-
-    const refreshToken = jwt.sign(
-      {
-        username: user.username,
-        userId: user.userId,
-        roles: filteredRoles,
-      },
-      process.env.REFRESH_TOKEN_SECRET!,
-      {
-        expiresIn: '7d',
-      }
-    );
-
-    res.cookie('jwt', refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-
-    return res.status(200).json({
-      success: true,
-      message: `${user.username}, you are successfully logged in!`,
-      accessToken,
-    });
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -122,53 +65,12 @@ const loginUser = async (req: Request, res: Response) => {
 const renewAccessToken = async (req: Request, res: Response) => {
   try {
     const cookieHeader = req.headers.cookie;
-    let refreshToken: string | undefined;
+    const accessToken = await renewAccessTokenService(cookieHeader);
 
-    if (cookieHeader) {
-      const cookies = cookieHeader.split(';').reduce(
-        (acc, cookie) => {
-          const [key, value] = cookie.trim().split('=');
-          if (key && value) {
-            acc[key] = value;
-          }
-          return acc;
-        },
-        {} as Record<string, string>
-      );
-      refreshToken = cookies.jwt;
-    }
-
-    if (!refreshToken) {
-      return res.status(401).json({
-        success: false,
-        message: 'No refresh token!',
-      });
-    }
-
-    try {
-      const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET!) as jwt.JwtPayload;
-
-      const accessToken = jwt.sign(
-        {
-          username: decoded.username,
-          userId: decoded.userId,
-          roles: decoded.roles,
-        },
-        process.env.ACCESS_TOKEN_SECRET!,
-        { expiresIn: '10m' }
-      );
-
-      return res.status(200).json({
-        success: true,
-        message: 'Access token renewed!',
-        accessToken,
-      });
-    } catch (error) {
-      return res.status(406).json({
-        success: false,
-        message: 'Unauthorized - Invalid or Expired access token!',
-        error,
-      });
+    if (accessToken.success) {
+      return res.status(201).json(accessToken);
+    } else {
+      return res.status(400).json(accessToken);
     }
   } catch (error) {
     return res.status(500).json({
