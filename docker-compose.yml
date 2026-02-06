@@ -1,0 +1,18 @@
+services:
+  api:
+    image: blog-image
+    build: .
+    expose: 
+      - "3000"
+    env_file:
+      - .env
+    
+  nginx: 
+    image: nginx:alpine
+    ports: 
+      - "80:80"
+    volumes: 
+        # - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf:ro 
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro  
+    depends_on:
+      - api
