@@ -1,11 +1,11 @@
 import type { Request, Response, NextFunction } from 'express';
 
-const adminMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+export const adminMiddleware = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.userInfo!.roles.includes('admin')) {
       return res.status(401).json({
         success: false,
-        message: 'Super Admin Permission Required!',
+        message: 'Admin Permission Required!',
       });
     }
     next();
@@ -17,5 +17,3 @@ const adminMiddleware = async (req: Request, res: Response, next: NextFunction) 
     });
   }
 };
-
-export { adminMiddleware };

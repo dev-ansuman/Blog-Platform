@@ -1,20 +1,18 @@
 import type { Request, Response } from 'express';
 import {
-  attachRoleToUser,
-  getUserRoles,
-  dettachUserRole,
-  addRoleToDB,
-  getRoles,
-} from '../db/queries.js';
+  getAllRolesService,
+  createRoleService,
+  getUserRolesDetailsService,
+  addUserRoleService,
+  removeUserRoleService,
+} from '../services/role.js';
 
 const getAllRoles = async (req: Request, res: Response) => {
   try {
-    const roles = await getRoles.all();
-    return res.status(200).json({
-      success: true,
-      message: 'All roles fetched!',
-      roles,
-    });
+    const roles = await getAllRolesService();
+
+    if (roles.success) return res.status(200).json(roles);
+    else return res.status(400).json(roles);
   } catch (error) {
     return res.status(200).json({
       success: true,
@@ -26,13 +24,18 @@ const getAllRoles = async (req: Request, res: Response) => {
 
 const createRole = async (req: Request, res: Response) => {
   try {
+    if (!req.body) {
+      return {
+        success: false,
+        message: 'Please enter body',
+      };
+    }
     const newRole = req.body.role;
-    const newRoleAdded = await addRoleToDB.get(newRole);
-    return res.status(201).json({
-      success: true,
-      message: 'New role added!',
-      newRoleAdded,
-    });
+
+    const newRoleAdded = await createRoleService(newRole);
+
+    if (newRoleAdded.success) return res.status(200).json(newRoleAdded);
+    else return res.status(400).json(newRoleAdded);
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -44,22 +47,18 @@ const createRole = async (req: Request, res: Response) => {
 
 const getUserRolesDetails = async (req: Request, res: Response) => {
   try {
-    const userId = Number(req.params.userId);
-    const roles = await getUserRoles.all(userId);
-    if (!roles) {
+    if (!req.params) {
       return res.status(400).json({
         success: false,
-        message: 'Error in getting Roles - getUserRolesDetails',
+        message: 'Please select a user!',
       });
     }
 
-    const filteredRoles = roles.map((role) => role.role);
+    const userId = Number(req.params.userId);
+    const roles = await getUserRolesDetailsService(userId);
 
-    return res.status(200).json({
-      success: true,
-      message: 'User roles fetched successfully!',
-      roles: filteredRoles,
-    });
+    if (roles.success) return res.status(200).json(roles);
+    else return res.status(400).json(roles);
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -71,16 +70,24 @@ const getUserRolesDetails = async (req: Request, res: Response) => {
 
 const addUserRole = async (req: Request, res: Response) => {
   try {
+    if (!req.params) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please select a user!',
+      });
+    }
+    if (!req.body) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please enter body',
+      });
+    }
     const userId = Number(req.params.userId);
     const roleId = req.body.roleId;
 
-    const roleAddedToUser = await attachRoleToUser.get(userId, roleId);
+    const roleAdded = await addUserRoleService(userId, roleId);
 
-    return res.status(200).json({
-      success: true,
-      message: 'Role added to user!',
-      roleAddedToUser,
-    });
+    return res.status(200).json(roleAdded);
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -92,10 +99,19 @@ const addUserRole = async (req: Request, res: Response) => {
 
 const removeUserRole = async (req: Request, res: Response) => {
   try {
+    if (!req.params) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please select a user and role!',
+      });
+    }
+
     const userId = Number(req.params.userId);
     const roleId = Number(req.params.roleId);
 
-    await dettachUserRole.get(userId, roleId);
+    const roleRemoved = await removeUserRoleService(userId, roleId);
+
+    return res.status(200).json(roleRemoved);
   } catch (error) {
     return res.status(500).json({
       success: false,
