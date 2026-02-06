@@ -6,6 +6,8 @@ import { getHashedPassword } from '../helpers/getHashedPassword.js';
 import { getCurrentTime } from '../helpers/getCurrentTime.js';
 import { checkEmail } from '../helpers/checkEmail.js';
 import { checkValidPassword } from '../helpers/checkValidPassword.js';
+import { FULLNAME, USERNAME, VALIDATION, TOKEN } from '../constants/authentication.js';
+import { REQUIRED } from '../constants/common.js';
 
 const registerUserService = async (
   username: string,
@@ -16,49 +18,49 @@ const registerUserService = async (
   if (!username || !fullname || !email || !password) {
     return {
       success: false,
-      message: 'Enter all required fields!',
+      message: REQUIRED.REQUIRED_FIELDS,
     };
   }
 
   if (username.length < 3) {
     return {
       success: false,
-      message: 'username should be atleast 3 characters!',
+      message: USERNAME.ATLEAST,
     };
   }
 
   if (username.length > 10) {
     return {
       success: false,
-      message: 'username should be atmost 10 characters!',
+      message: USERNAME.ATMOST,
     };
   }
 
   if (fullname.length < 3) {
     return {
       success: false,
-      message: 'fullname should be atleast 3 characters!',
+      message: FULLNAME.ATLEAST,
     };
   }
 
-  if (fullname.length > 10) {
+  if (fullname.length > 30) {
     return {
       success: false,
-      message: 'fullname should be atmost 10 characters!',
+      message: FULLNAME.ATMOST,
     };
   }
 
   if (!checkEmail(email)) {
     return {
       success: false,
-      message: 'Invalid Email Address!',
+      message: VALIDATION.INVALID_EMAIL,
     };
   }
 
   if (!checkValidPassword(password)) {
     return {
       success: false,
-      message: 'Invalid Password!',
+      message: VALIDATION.INVALID_PASSWORD,
     };
   }
 
@@ -71,7 +73,7 @@ const registerUserService = async (
 
   return {
     success: true,
-    message: 'User created successfully',
+    message: USERNAME.CREATED,
     newUser,
   };
 };
@@ -82,7 +84,7 @@ const loginUserService = async (username: string, password: string) => {
   if (!user) {
     return {
       success: false,
-      message: 'User not found!',
+      message: USERNAME.NOT_FOUND,
     };
   }
 
@@ -91,7 +93,7 @@ const loginUserService = async (username: string, password: string) => {
   if (!isPasswordValid) {
     return {
       success: false,
-      message: 'Invalid Password!',
+      message: VALIDATION.INVALID_PASSWORD,
     };
   }
 
@@ -153,7 +155,7 @@ const renewAccessTokenService = async (cookieHeader: string | undefined) => {
   if (!refreshToken) {
     return {
       success: false,
-      message: 'No refresh token!',
+      message: TOKEN.NO_REFRESH_TOKEN,
     };
   }
 
@@ -172,13 +174,13 @@ const renewAccessTokenService = async (cookieHeader: string | undefined) => {
 
     return {
       success: true,
-      message: 'Access token renewed!',
+      message: TOKEN.ACCESS_TOKEN_RENEWED,
       accessToken,
     };
   } catch (error) {
     return {
       success: false,
-      message: 'Unauthorized - Invalid or Expired access token!',
+      message: TOKEN.UNAUTHORIZED,
       error,
     };
   }

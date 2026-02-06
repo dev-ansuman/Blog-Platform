@@ -6,6 +6,8 @@ import {
   addUserRoleService,
   removeUserRoleService,
 } from '../services/role.js';
+import { ROLES } from '../constants/role.js';
+import { ERROR, REQUIRED } from '../constants/common.js';
 
 const getAllRoles = async (req: Request, res: Response) => {
   try {
@@ -16,7 +18,7 @@ const getAllRoles = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(200).json({
       success: true,
-      message: 'All roles fetched!',
+      message: ROLES.ROLES_FETCHED,
       error,
     });
   }
@@ -27,7 +29,7 @@ const createRole = async (req: Request, res: Response) => {
     if (!req.body) {
       return {
         success: false,
-        message: 'Please enter body',
+        message: REQUIRED.REQUIRED_FIELDS,
       };
     }
     const newRole = req.body.role;
@@ -39,7 +41,7 @@ const createRole = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Internal server error - createRole!',
+      message: `${ERROR.INTERNAL_SERVER} - createRole!`,
       error,
     });
   }
@@ -50,7 +52,7 @@ const getUserRolesDetails = async (req: Request, res: Response) => {
     if (!req.params) {
       return res.status(400).json({
         success: false,
-        message: 'Please select a user!',
+        message: ROLES.USER_NOT_SELECTED,
       });
     }
 
@@ -62,7 +64,7 @@ const getUserRolesDetails = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Internal server error - getUserRoles',
+      message: `${ERROR.INTERNAL_SERVER} - getUserRoles`,
       error,
     });
   }
@@ -73,13 +75,13 @@ const addUserRole = async (req: Request, res: Response) => {
     if (!req.params) {
       return res.status(400).json({
         success: false,
-        message: 'Please select a user!',
+        message: ROLES.USER_NOT_SELECTED,
       });
     }
     if (!req.body) {
       return res.status(400).json({
         success: false,
-        message: 'Please enter body',
+        message: REQUIRED.REQUIRED_FIELDS,
       });
     }
     const userId = Number(req.params.userId);
@@ -91,7 +93,7 @@ const addUserRole = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Internal server error - addUserRole',
+      message: `${ERROR.INTERNAL_SERVER} - addUserRole`,
       error,
     });
   }
@@ -102,7 +104,7 @@ const removeUserRole = async (req: Request, res: Response) => {
     if (!req.params) {
       return res.status(400).json({
         success: false,
-        message: 'Please select a user and role!',
+        message: REQUIRED.REQUIRED_FIELDS,
       });
     }
 
@@ -115,7 +117,7 @@ const removeUserRole = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Internal server error - removeUserRole',
+      message: `${ERROR.INTERNAL_SERVER} - removeUserRole`,
       error,
     });
   }

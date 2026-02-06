@@ -8,13 +8,15 @@ import {
   getUserPostByIdService,
   getUserPostsService,
 } from '../services/blog.js';
+import { ERROR, REQUIRED } from '../constants/common.js';
+import { POST } from '../constants/blog.js';
 
 const createPost = async (req: Request, res: Response) => {
   try {
     if (!req.body) {
       return res.status(400).json({
         success: false,
-        message: 'Please enter all required fields (BODY)!',
+        message: REQUIRED.REQUIRED_FIELDS,
       });
     }
 
@@ -22,7 +24,7 @@ const createPost = async (req: Request, res: Response) => {
     if (!content) {
       return res.status(400).json({
         success: false,
-        message: 'Content cannot be empty!',
+        message: REQUIRED.REQUIRED_FIELDS,
       });
     }
     const userId = req.userInfo!.userId;
@@ -33,7 +35,7 @@ const createPost = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Internal server error - createPost',
+      message: `${ERROR.INTERNAL_SERVER} - createPost`,
       error,
     });
   }
@@ -49,7 +51,7 @@ const getUserPosts = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Internal server error - getUserPosts',
+      message: `${ERROR.INTERNAL_SERVER} - getUserPosts`,
       error,
     });
   }
@@ -60,7 +62,7 @@ const getUserPostById = async (req: Request, res: Response) => {
     if (!req.params) {
       return res.status(400).json({
         success: false,
-        message: `Please select a post!`,
+        message: POST.POST_NOT_SELECTED,
       });
     }
     const postId = Number(req.params.postId);
@@ -71,7 +73,7 @@ const getUserPostById = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Internal server error - getUserPostById',
+      message: `${ERROR.INTERNAL_SERVER} - getUserPostById`,
       error,
     });
   }
@@ -82,7 +84,7 @@ const addComment = async (req: Request, res: Response) => {
     if (!req.params) {
       return res.status(400).json({
         success: false,
-        message: `Please select a post to comment!`,
+        message: `${POST.POST_NOT_SELECTED} to comment!`,
       });
     }
 
@@ -92,7 +94,7 @@ const addComment = async (req: Request, res: Response) => {
     if (!req.body) {
       return res.status(400).json({
         success: false,
-        message: 'Please enter all required fields (BODY)!',
+        message: REQUIRED.REQUIRED_FIELDS,
       });
     }
     const { content } = req.body;
@@ -103,7 +105,7 @@ const addComment = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Internal server error - addComment',
+      message: `${ERROR.INTERNAL_SERVER} - addComment`,
       error,
     });
   }
@@ -114,22 +116,18 @@ const getComments = async (req: Request, res: Response) => {
     if (!req.params) {
       return res.status(400).json({
         success: false,
-        message: `Please select a post to comment!`,
+        message: `${POST.POST_NOT_SELECTED} to comment!`,
       });
     }
     const postId = Number(req.params.postId);
 
     const comments = await getCommentsService(postId);
 
-    return res.status(201).json({
-      success: true,
-      message: `Comments for postId - ${postId} retrieved successfully`,
-      comments,
-    });
+    return res.status(201).json(comments);
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Internal server error - addComment',
+      message: `${ERROR.INTERNAL_SERVER} - addComment`,
       error,
     });
   }
@@ -140,7 +138,7 @@ const addReaction = async (req: Request, res: Response) => {
     if (!req.params) {
       return res.status(400).json({
         success: false,
-        message: `Please select a post to comment!`,
+        message: `${POST.POST_NOT_SELECTED} to comment!`,
       });
     }
 
@@ -150,7 +148,7 @@ const addReaction = async (req: Request, res: Response) => {
     if (!req.body) {
       return res.status(400).json({
         success: false,
-        message: 'Please enter all required fields (BODY)!',
+        message: REQUIRED.REQUIRED_FIELDS,
       });
     }
     const { content } = req.body;
@@ -161,7 +159,7 @@ const addReaction = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Internal server error - addReaction',
+      message: `${ERROR.INTERNAL_SERVER} - addReaction`,
       error,
     });
   }
@@ -172,22 +170,18 @@ const getReactions = async (req: Request, res: Response) => {
     if (!req.params) {
       return res.status(400).json({
         success: false,
-        message: `Please select a post to add reaction!`,
+        message: `${POST.POST_NOT_SELECTED} to add reaction!`,
       });
     }
     const postId = Number(req.params.postId);
 
     const reactions = await getReactionsService(postId);
 
-    return res.status(201).json({
-      success: true,
-      message: `Reactions for postId - ${postId} retrieved successfully`,
-      reactions,
-    });
+    return res.status(201).json(reactions);
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Internal server error - addComment',
+      message: `${ERROR.INTERNAL_SERVER} - addComment`,
       error,
     });
   }

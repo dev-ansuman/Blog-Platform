@@ -1,10 +1,11 @@
+import { USERS } from '../constants/admin.js';
 import { getAllUsers, getUserByUserId, deleteUserById } from '../db/queries.js';
 
 const getAllUserDataService = async () => {
   const users = await getAllUsers.all();
   return {
     success: true,
-    message: 'All Users',
+    message: USERS.USERS_FETCHED,
     totalUsers: users.length,
     users,
   };
@@ -15,13 +16,13 @@ const getUserDataByIdService = async (userId: number) => {
   if (!user) {
     return {
       success: false,
-      message: 'User not found!',
+      message: USERS.USER_NOT_FOUND,
     };
   }
 
   return {
     success: true,
-    message: 'User found!',
+    message: USERS.USER_FOUND,
     user,
   };
 };
@@ -31,7 +32,7 @@ const deleteUserService = async (userId: number) => {
   if (!user) {
     return {
       success: false,
-      message: 'User not found!',
+      message: USERS.USER_NOT_FOUND,
     };
   }
 
@@ -39,7 +40,7 @@ const deleteUserService = async (userId: number) => {
 
   return {
     success: true,
-    message: `User: ${user.username}, deleted successfully`,
+    message: `${user.username}, ${USERS.USER_DELETED}`,
   };
 };
 

@@ -5,6 +5,8 @@ import {
   getUserDataByIdService,
 } from '../services/admin.js';
 import { updateUserDetailsService } from '../services/userProfile.js';
+import { ERROR, REQUIRED } from '../constants/common.js';
+import { USERS } from '../constants/admin.js';
 
 const getAllUserData = async (req: Request, res: Response) => {
   try {
@@ -13,7 +15,7 @@ const getAllUserData = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Internal Server Error - getAllUserData',
+      message: `${ERROR.INTERNAL_SERVER} - getAllUserData`,
       error,
     });
   }
@@ -28,7 +30,7 @@ const getUserDataById = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Internal server error - getUserDataById',
+      message: `${ERROR.INTERNAL_SERVER} - getUserDataById`,
       error,
     });
   }
@@ -39,7 +41,7 @@ const updateUserDetails = async (req: Request, res: Response) => {
     if (!req.params) {
       return res.status(400).json({
         success: false,
-        message: `Please select a user!`,
+        message: USERS.USER_NOT_SELECTED,
       });
     }
     const userId = Number(req.params.userId);
@@ -47,7 +49,7 @@ const updateUserDetails = async (req: Request, res: Response) => {
     if (!req.body) {
       return res.status(400).json({
         success: false,
-        message: 'Please enter all required fields (BODY)!',
+        message: REQUIRED.REQUIRED_FIELDS,
       });
     }
 
@@ -56,7 +58,7 @@ const updateUserDetails = async (req: Request, res: Response) => {
     if (!newUsername || !newFullname || !newEmail) {
       return res.status(400).json({
         success: false,
-        message: 'Please enter all required fields!',
+        message: REQUIRED.REQUIRED_FIELDS,
       });
     }
 
@@ -70,7 +72,7 @@ const updateUserDetails = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Internal server error - admin updateUserDetails',
+      message: `${ERROR.INTERNAL_SERVER} - admin updateUserDetails`,
       error,
     });
   }
@@ -81,7 +83,7 @@ const deleteUser = async (req: Request, res: Response) => {
     if (!req.params) {
       return res.status(400).json({
         success: false,
-        message: `Please select a user!`,
+        message: USERS.USER_NOT_SELECTED,
       });
     }
     const userId = Number(req.params.userId);
@@ -93,7 +95,7 @@ const deleteUser = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Internal server error - deleteUser',
+      message: `${ERROR.INTERNAL_SERVER} - deleteUser`,
       error,
     });
   }

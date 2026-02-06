@@ -1,3 +1,4 @@
+import { ROLES } from '../constants/role.js';
 import {
   getRoles,
   addRoleToDB,
@@ -12,12 +13,12 @@ const getAllRolesService = async () => {
   if (!roles) {
     return {
       success: false,
-      message: 'Roles not found!',
+      message: ROLES.ROLE_NOT_FOUND,
     };
   }
   return {
     success: true,
-    message: 'Roles Fetched',
+    message: ROLES.ROLES_FETCHED,
     roles,
   };
 };
@@ -27,13 +28,13 @@ const createRoleService = async (newRole: string) => {
   if (!newRoleAdded) {
     return {
       success: false,
-      message: 'Unable to add new role!',
+      message: ROLES.UNABLE_TO_ADD_NEW_ROLE,
     };
   }
 
   return {
     success: true,
-    message: 'New role added!',
+    message: ROLES.NEW_ROLE_ADDED,
     newRoleAdded,
   };
 };
@@ -44,14 +45,14 @@ const getUserRolesDetailsService = async (userId: number) => {
   if (!user) {
     return {
       success: false,
-      message: 'User not found!',
+      message: ROLES.USER_NOT_FOUND,
     };
   }
   const roles = await getUserRoles.all(userId);
   if (!roles) {
     return {
       success: false,
-      message: 'Error in getting Roles - getUserRolesDetails',
+      message: `${ROLES.ERROR_FETCHING_ROLES} - getUserRolesDetails`,
     };
   }
 
@@ -59,7 +60,7 @@ const getUserRolesDetailsService = async (userId: number) => {
 
   return {
     success: true,
-    message: 'User roles fetched successfully!',
+    message: ROLES.USER_ROLES_FETCHED,
     roles: filteredRoles,
   };
 };
@@ -69,7 +70,7 @@ const addUserRoleService = async (userId: number, roleId: number) => {
 
   return {
     success: true,
-    message: 'Role added to user!',
+    message: ROLES.ROLE_ATTACHED,
     roleAddedToUser,
   };
 };
@@ -78,7 +79,7 @@ const removeUserRoleService = async (userId: number, roleId: number) => {
   await dettachUserRole.get(userId, roleId);
   return {
     success: true,
-    message: `roleId: ${roleId}, removed from userId: ${userId}`,
+    message: `${ROLES.ROLE_REMOVED} from userId: ${userId}, roleId: ${roleId}`,
   };
 };
 

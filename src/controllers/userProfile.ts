@@ -6,6 +6,9 @@ import {
   deleteUserService,
 } from '../services/userProfile.js';
 
+import { USER } from '../constants/userProfile.js';
+import { ERROR, REQUIRED } from '../constants/common.js';
+
 const getUserDetail = async (req: Request, res: Response) => {
   try {
     const userId = req.userInfo!.userId;
@@ -13,13 +16,13 @@ const getUserDetail = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       success: true,
-      message: 'User Details fetched successfully!',
+      message: USER.USER_DETAILS_FETCHED,
       detail,
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Internal server error - getUserDetail',
+      message: `${ERROR.INTERNAL_SERVER} - getUserDetail`,
       error,
     });
   }
@@ -32,7 +35,7 @@ const updateUserDetails = async (req: Request, res: Response) => {
     if (!req.body) {
       return res.status(400).json({
         success: false,
-        message: 'Please enter all required fields (BODY)!',
+        message: `${REQUIRED.REQUIRED_FIELDS}`,
       });
     }
 
@@ -41,7 +44,7 @@ const updateUserDetails = async (req: Request, res: Response) => {
     if (!newUsername || !newFullname || !newEmail) {
       return res.status(400).json({
         success: false,
-        message: 'Please enter all required fields!',
+        message: `${REQUIRED.REQUIRED_FIELDS}`,
       });
     }
 
@@ -55,7 +58,7 @@ const updateUserDetails = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Internal server error - updateUserDetails',
+      message: `${ERROR.INTERNAL_SERVER} - updateUserDetails`,
       error,
     });
   }
@@ -66,7 +69,7 @@ const updateUserPassword = async (req: Request, res: Response) => {
     if (!req.body) {
       return res.status(400).json({
         success: false,
-        message: 'Please enter all required fields (BODY)!',
+        message: REQUIRED.REQUIRED_FIELDS,
       });
     }
     const { oldPassword, newPassword } = req.body;
@@ -76,7 +79,7 @@ const updateUserPassword = async (req: Request, res: Response) => {
     if (!oldPassword || !newPassword) {
       return res.status(400).json({
         success: false,
-        message: 'Please enter all required fields!',
+        message: REQUIRED.REQUIRED_FIELDS,
       });
     }
 
@@ -87,7 +90,7 @@ const updateUserPassword = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: true,
-      message: 'Internal server error - updateUserPassword',
+      message: `${ERROR.INTERNAL_SERVER} - updateUserPassword`,
       error,
     });
   }
@@ -104,7 +107,7 @@ const deleteUser = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Internal server error - deleteUser',
+      message: `${ERROR.INTERNAL_SERVER} - deleteUser`,
       error,
     });
   }

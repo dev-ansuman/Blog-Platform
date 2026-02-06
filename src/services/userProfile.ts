@@ -11,6 +11,7 @@ import { getCurrentTime } from '../helpers/getCurrentTime.js';
 import { checkEmail } from '../helpers/checkEmail.js';
 import bcrypt from 'bcryptjs';
 import { getHashedPassword } from '../helpers/getHashedPassword.js';
+import { USER } from '../constants/userProfile.js';
 
 const getUserDetailService = async (userId: number) => {
   return await getUserByUserId.get(userId);
@@ -26,7 +27,7 @@ const updateUserDetailsService = async (
   if (usernameExists) {
     return {
       sucsess: false,
-      message: 'Username Taken! choose another username',
+      message: USER.USERNAME_TAKEN,
     };
   }
 
@@ -34,28 +35,28 @@ const updateUserDetailsService = async (
   if (emailExists) {
     return {
       sucsess: false,
-      message: 'Email Taken! choose another email',
+      message: USER.EMAIL_TAKEN,
     };
   }
 
   if (!checkEmail(newEmail)) {
     return {
       success: false,
-      message: 'Invalid Email Address!',
+      message: USER.INVALID_EMAIL,
     };
   }
 
   if (newUsername.length < 3) {
     return {
       success: false,
-      message: 'username should be atleast 3 characters!',
+      message: USER.USERNAME_ATLEAST,
     };
   }
 
   if (newUsername.length > 10) {
     return {
       success: false,
-      message: 'username should be atmost 10 characters!',
+      message: USER.USERNAME_ATMOST,
     };
   }
 
@@ -69,7 +70,7 @@ const updateUserDetailsService = async (
 
   return {
     success: true,
-    message: 'User Details updated successfully!',
+    message: USER.USER_DETAILS_UPDATED,
     updatedUser,
   };
 };
@@ -83,7 +84,7 @@ const updateUserPasswordService = async (
   if (!user) {
     return {
       success: false,
-      message: 'User not found!',
+      message: USER.NOT_FOUND,
     };
   }
 
@@ -92,7 +93,7 @@ const updateUserPasswordService = async (
   if (!isPasswordValid) {
     return {
       success: false,
-      message: 'Invalid password!',
+      message: USER.INVALID_PASSWORD,
     };
   }
   const newHashedPassword = await getHashedPassword(newPassword);
@@ -102,7 +103,7 @@ const updateUserPasswordService = async (
 
   return {
     success: true,
-    message: `${username}, password update successfully`,
+    message: `${username}, ${USER.PASSWORD_UPDATED}`,
   };
 };
 
@@ -111,9 +112,10 @@ const deleteUserService = async (userId: number, username: string) => {
 
   return {
     success: true,
-    message: `User: ${username} deleted successfully!`,
+    message: `User: ${username}, ${USER.USER_DELETED}`,
   };
 };
+
 export {
   getUserDetailService,
   updateUserDetailsService,

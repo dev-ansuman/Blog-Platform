@@ -4,6 +4,7 @@ import {
   registerUserService,
   renewAccessTokenService,
 } from '../services/authentication.js';
+import { ERROR, REQUIRED } from '../constants/common.js';
 
 const registerUser = async (req: Request, res: Response) => {
   try {
@@ -18,7 +19,7 @@ const registerUser = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Internal server error - User Registration',
+      message: `${ERROR.INTERNAL_SERVER} - User Registration`,
       error,
     });
   }
@@ -31,7 +32,7 @@ const loginUser = async (req: Request, res: Response) => {
     if (!username || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Enter all required details!',
+        message: REQUIRED.REQUIRED_FIELDS,
       });
     }
 
@@ -56,7 +57,7 @@ const loginUser = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Internal Server Error: User Login',
+      message: `${ERROR.INTERNAL_SERVER} - User Login`,
       error,
     });
   }
@@ -75,7 +76,7 @@ const renewAccessToken = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Internal server error - Access Token renew failed!',
+      message: `${ERROR.INTERNAL_SERVER} - renewAccessToken!`,
       error,
     });
   }
@@ -95,7 +96,7 @@ const logoutUser = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'Internal server error : Logout User',
+      message: `${ERROR.INTERNAL_SERVER} - Logout User`,
       error,
     });
   }

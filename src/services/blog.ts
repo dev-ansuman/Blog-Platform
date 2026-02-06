@@ -1,3 +1,4 @@
+import { COMMENT, POST, REACTION } from '../constants/blog.js';
 import {
   addPost,
   getPostsByUserId,
@@ -14,7 +15,7 @@ const createPostService = async (content: string, userId: number) => {
 
   return {
     success: true,
-    message: 'New Post created!',
+    message: POST.NEW_POST,
     newPost,
   };
 };
@@ -22,7 +23,7 @@ const getUserPostsService = async (userId: number, username: string) => {
   const posts = getPostsByUserId.all(userId);
   return {
     success: true,
-    message: `Posts for ${username} retrieved successfully!`,
+    message: `${username}: ${POST.POSTS_RETRIEVED}`,
     numberOfPosts: posts.length,
     posts,
   };
@@ -32,13 +33,13 @@ const getUserPostByIdService = async (postId: number) => {
   if (!post) {
     return {
       success: false,
-      message: 'Post not found !',
+      message: POST.POST_NOT_FOUND,
     };
   }
 
   return {
     success: true,
-    message: 'Post retrieved',
+    message: POST.POSTS_RETRIEVED,
     post,
   };
 };
@@ -47,7 +48,7 @@ const addCommentService = async (content: string, postId: number, userId: number
   const newComment = addCommentToPost.get(content, postId, userId, getCurrentTime());
   return {
     success: true,
-    message: 'Comment added !',
+    message: COMMENT.NEW_COMMENT,
     newComment,
   };
 };
@@ -55,7 +56,7 @@ const getCommentsService = async (postId: number) => {
   const comments = getCommentsByPostId.all(postId);
   return {
     success: true,
-    message: `Comments for postId: ${postId} retrieved successfully!`,
+    message: `${postId} - ${COMMENT.COMMENTS_RETRIEVED}`,
     numberOfComments: comments.length,
     comments,
   };
@@ -64,7 +65,7 @@ const addReactionService = async (content: string, postId: number, userId: numbe
   const newReaction = addReactionToPost.get(content, postId, userId, getCurrentTime());
   return {
     success: true,
-    message: 'Reacted!',
+    message: REACTION.NEW_REACTION,
     newReaction,
   };
 };
@@ -73,7 +74,7 @@ const getReactionsService = async (postId: number) => {
   const reactions = getReactionsByPostId.all(postId);
   return {
     success: true,
-    message: `Reactions for postId: ${postId} retrieved successfully!`,
+    message: `${postId} - ${REACTION.REACTIONS_RETRIEVED}`,
     numberOfReactions: reactions.length,
     reactions,
   };
