@@ -6,111 +6,103 @@ import {
   deleteUserService,
 } from '../services/userProfile.js';
 
-import { USER } from '../constants/userProfile.js';
-import { ERROR, REQUIRED } from '../constants/common.js';
+import { REQUIRED } from '../constants/common.js';
 
 const getUserDetail = async (req: Request, res: Response) => {
-  try {
-    const userId = req.userInfo!.userId;
-    const detail = await getUserDetailService(userId);
+  const userId = req.userInfo!.userId;
+  const detail = await getUserDetailService(userId);
 
+  if (detail.success) {
     return res.status(200).json({
-      success: true,
-      message: USER.USER_DETAILS_FETCHED,
-      detail,
+      success: detail.success,
+      message: detail.message,
+      detail: detail.detail,
     });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: `${ERROR.INTERNAL_SERVER} - getUserDetail`,
-      error,
+  } else {
+    return res.status(detail.httpCode).json({
+      success: detail.success,
+      message: detail.message,
     });
   }
 };
 
 const updateUserDetails = async (req: Request, res: Response) => {
-  try {
-    const userId = req.userInfo!.userId;
+  const userId = req.userInfo!.userId;
 
-    if (!req.body) {
-      return res.status(400).json({
-        success: false,
-        message: `${REQUIRED.REQUIRED_FIELDS}`,
-      });
-    }
-
-    const { newUsername, newFullname, newEmail } = req.body;
-
-    if (!newUsername || !newFullname || !newEmail) {
-      return res.status(400).json({
-        success: false,
-        message: `${REQUIRED.REQUIRED_FIELDS}`,
-      });
-    }
-
-    const updatedUser = await updateUserDetailsService(newUsername, newFullname, newEmail, userId);
-
-    if (updatedUser.success) {
-      return res.status(200).json(updatedUser);
-    } else {
-      return res.status(400).json(updatedUser);
-    }
-  } catch (error) {
-    return res.status(500).json({
+  if (!req.body) {
+    return res.status(400).json({
       success: false,
-      message: `${ERROR.INTERNAL_SERVER} - updateUserDetails`,
-      error,
+      message: `${REQUIRED.REQUIRED_FIELDS}`,
+    });
+  }
+
+  const { newUsername, newFullname, newEmail } = req.body;
+
+  if (!newUsername || !newFullname || !newEmail) {
+    return res.status(400).json({
+      success: false,
+      message: `${REQUIRED.REQUIRED_FIELDS}`,
+    });
+  }
+
+  const updatedUser = await updateUserDetailsService(newUsername, newFullname, newEmail, userId);
+
+  if (updatedUser.success) {
+    return res.status(200).json({
+      success: updatedUser.success,
+      message: updatedUser.message,
+      updatedUser: updatedUser.updatedUser,
+    });
+  } else {
+    return res.status(updatedUser.httpCode).json({
+      success: updatedUser.success,
+      message: updatedUser.message,
     });
   }
 };
 
 const updateUserPassword = async (req: Request, res: Response) => {
-  try {
-    if (!req.body) {
-      return res.status(400).json({
-        success: false,
-        message: REQUIRED.REQUIRED_FIELDS,
-      });
-    }
-    const { oldPassword, newPassword } = req.body;
-
-    const username = req.userInfo!.username;
-
-    if (!oldPassword || !newPassword) {
-      return res.status(400).json({
-        success: false,
-        message: REQUIRED.REQUIRED_FIELDS,
-      });
-    }
-
-    const updatePassword = await updateUserPasswordService(oldPassword, newPassword, username);
-
-    if (updatePassword.success) return res.status(200).json(updatePassword);
-    else return res.status(400).json(updatePassword);
-  } catch (error) {
-    return res.status(500).json({
-      success: true,
-      message: `${ERROR.INTERNAL_SERVER} - updateUserPassword`,
-      error,
+  if (!req.body) {
+    return res.status(400).json({
+      success: false,
+      message: REQUIRED.REQUIRED_FIELDS,
     });
   }
+  const { oldPassword, newPassword } = req.body;
+
+  const username = req.userInfo!.username;
+
+  if (!oldPassword || !newPassword) {
+    return res.status(400).json({
+      success: false,
+      message: REQUIRED.REQUIRED_FIELDS,
+    });
+  }
+
+  const updatePassword = await updateUserPasswordService(oldPassword, newPassword, username);
+
+  if (updatePassword.success)
+    return res.status(200).json({
+      success: updatePassword.success,
+      message: updatePassword.message,
+    });
+  else
+    return res.status(updatePassword.httpCode).json({
+      success: updatePassword.success,
+      message: updatePassword.message,
+    });
 };
 
 const deleteUser = async (req: Request, res: Response) => {
-  try {
-    const userId = req.userInfo!.userId;
-    const username = req.userInfo!.username;
+  const userId = req.userInfo!.userId;
+  const username = req.userInfo!.username;
 
-    const deletedUser = await deleteUserService(userId, username);
+  const deletedUser = await deleteUserService(userId, username);
 
-    return res.status(200).json(deletedUser);
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: `${ERROR.INTERNAL_SERVER} - deleteUser`,
-      error,
-    });
-  }
+  return res.status(deletedUser.httpCode).json({
+    success: deletedUser.success,
+    message: deletedUser.message,
+  });
 };
 
 export { getUserDetail, updateUserDetails, updateUserPassword, deleteUser };

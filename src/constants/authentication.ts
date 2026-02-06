@@ -3,6 +3,7 @@ const USERNAME = {
   ATMOST: 'username should be atmost 10 characters!',
   CREATED: 'User created successfully',
   NOT_FOUND: 'User not found!',
+  LOGOUT_USER: 'Logged out successfully!',
 };
 const FULLNAME = {
   ATLEAST: 'fullname should be atleast 3 characters!',
