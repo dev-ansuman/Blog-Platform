@@ -24,6 +24,12 @@ const getAllUserData = async (req: Request, res: Response) => {
 };
 
 const getUserDataById = async (req: Request, res: Response) => {
+  if (!req.params) {
+    return res.status(400).json({
+      success: false,
+      message: REQUIRED.REQUIRED_FIELDS,
+    });
+  }
   const userId = Number(req.params.userId);
   const user = await getUserDataByIdService(userId);
 
